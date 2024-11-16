@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Map, User, Award } from 'lucide-react';
+import { Map, User, Award, Clock } from 'lucide-react';
 
 interface Badge {
   id: string;
@@ -8,6 +8,7 @@ interface Badge {
   leader: string;
   url: string;
   color: string;
+  hours: string; // 営業時間を追加
 }
 
 type BadgeComponent = React.FC<{}>;
@@ -48,7 +49,7 @@ const Badge5: BadgeComponent = () => (
   </svg>
 );
 
-const BadgeComponents: Record<string, BadgeComponent> = {
+const BadgeComponents: Record<string, React.FC> = {
   badge1: Badge1,
   badge2: Badge2,
   badge3: Badge3,
@@ -67,7 +68,8 @@ const App: React.FC = () => {
       gym: 'なんでもジム', 
       leader: 'なんでもトークン', 
       url: 'https://app.gather.town/app/7IQBpxNhAIni5UfR/TokenGym',
-      color: 'bg-stone-600' 
+      color: 'bg-stone-600',
+      hours: '平日 夜10:00-10:30'
     },
     { 
       id: 'badge2', 
@@ -75,7 +77,8 @@ const App: React.FC = () => {
       gym: 'ジム２', 
       leader: '？？？', 
       url: 'https://example.com/gym2',
-      color: 'bg-blue-600' 
+      color: 'bg-blue-600',
+      hours: '毎日 20:00-21:00'
     },
     { 
       id: 'badge3', 
@@ -83,7 +86,8 @@ const App: React.FC = () => {
       gym: 'ジム３', 
       leader: '？？？', 
       url: 'https://example.com/gym3',
-      color: 'bg-yellow-500' 
+      color: 'bg-yellow-500',
+      hours: '水-月 19:00-20:00'
     },
     { 
       id: 'badge4', 
@@ -91,7 +95,8 @@ const App: React.FC = () => {
       gym: 'ジム４', 
       leader: '？？？', 
       url: 'https://example.com/gym4',
-      color: 'bg-green-600' 
+      color: 'bg-green-600',
+      hours: '土日祝 10:00-17:00'
     },
     { 
       id: 'badge5', 
@@ -99,7 +104,8 @@ const App: React.FC = () => {
       gym: 'ジム５', 
       leader: '？？？', 
       url: 'https://example.com/gym5',
-      color: 'bg-purple-600' 
+      color: 'bg-purple-600',
+      hours: '年中無休 24時間'
     }
   ];
 
@@ -183,6 +189,10 @@ const App: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <User className="w-5 h-5 text-gray-400" />
                     <span>{selectedBadge.leader}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Clock className="w-5 h-5 text-gray-400" />
+                    <span>{selectedBadge.hours}</span>
                   </div>
                 </div>
 
