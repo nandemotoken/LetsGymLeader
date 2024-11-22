@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Map, User, Award, Clock } from 'lucide-react';
+import { useTorus } from './hooks/useTorus'
 
 interface Badge {
   id: string;
@@ -60,6 +61,10 @@ const BadgeComponents: Record<string, React.FC> = {
 const App: React.FC = () => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [obtainedBadges, setObtainedBadges] = useState<Set<string>>(new Set(['badge2', 'badge3']));
+
+  //torus
+  // const { isConnected, account, connect } = useTorus();
+
 
   const badges: Badge[] = [
     { 
