@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Map, User, Award, Clock } from 'lucide-react';
-import Torus from "@toruslabs/torus-embed";
-import { ethers } from "ethers";
 
 interface Badge {
   id: string;
@@ -10,7 +8,7 @@ interface Badge {
   leader: string;
   url: string;
   color: string;
-  hours: string;
+  hours: string; // 営業時間を追加
 }
 
 type BadgeComponent = React.FC<{}>;
@@ -62,8 +60,6 @@ const BadgeComponents: Record<string, React.FC> = {
 const App: React.FC = () => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [obtainedBadges, setObtainedBadges] = useState<Set<string>>(new Set(['badge2', 'badge3']));
-  const [torusEnabled, setTorusEnabled] = useState<boolean>(true);
-  const [torusConnected, setTorusConnected] = useState<boolean>(false);
 
   const badges: Badge[] = [
     { 
@@ -73,7 +69,7 @@ const App: React.FC = () => {
       leader: 'なんでもトークン', 
       url: 'https://app.gather.town/app/7IQBpxNhAIni5UfR/TokenGym',
       color: 'bg-stone-600',
-      hours: '平日 22:00-22:30'
+      hours: '平日 夜10:00-10:30'
     },
     { 
       id: 'badge2', 
@@ -110,40 +106,8 @@ const App: React.FC = () => {
       url: 'https://example.com/gym5',
       color: 'bg-purple-600',
       hours: '年中無休 24時間'
-    }
+    },
   ];
-
-
-  const connectTorusWithTwitter = async () => {
-    try {
-      const torus = new Torus({
-        buttonPosition: "bottom-left" // ボタンの位置
-      });
-  
-      // 初期化オプションを修正
-      await torus.init({
-        showTorusButton: false,
-        network: {
-          host: "mainnet", // または "rinkeby", "ropsten" など
-          chainId: 1, // メインネットの場合
-          networkName: "Main Ethereum Network"
-        }
-      });
-  
-      // Twitterでログイン
-      const accounts = await torus.login({ verifier: "twitter" });
-      console.log("Logged in with account:", accounts[0]);
-  
-      // プロバイダーの設定
-      const provider = new ethers.BrowserProvider(torus.provider);
-      
-      setTorusConnected(true);
-      console.log("Torus connected with Twitter");
-  
-    } catch (error) {
-      console.error("Twitter login error:", error);
-    }
-  };
 
   const handleGymVisit = (url: string): void => {
     window.open(url, '_blank');
@@ -158,22 +122,6 @@ const App: React.FC = () => {
             <span>獲得数: {obtainedBadges.size}</span>
             <span>総数: {badges.length}</span>
           </div>
-          {/* Twitterログインボタン */}
-          {torusEnabled && !torusConnected && (
-            <button
-              onClick={connectTorusWithTwitter}
-              className="mt-2 w-full p-2 rounded-lg bg-blue-500 hover:bg-blue-600 transition-colors duration-300 flex items-center justify-center space-x-2"
-            >
-              <svg 
-                className="w-5 h-5" 
-                fill="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-              </svg>
-              <span>Twitterでログイン</span>
-            </button>
-          )}
         </div>
 
         <div className="p-4 space-y-4">
