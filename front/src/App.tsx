@@ -3,9 +3,71 @@ import { Map, User, Award, Clock } from 'lucide-react';
 import {
   DynamicContextProvider,
   DynamicWidget,
+  useDynamicContext
 } from "@dynamic-labs/sdk-react-core";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { badges, BadgeComponents, type Badge } from './Badges';
+
+const CustomLoginButton: React.FC = () => {
+  const { setShowAuthFlow } = useDynamicContext();
+  
+  return (
+    <button
+      onClick={() => setShowAuthFlow(true)}
+      className="
+        px-4 py-1.5 rounded-full
+        bg-white/10
+        ring-1 ring-white/30
+        text-white text-sm font-medium
+        hover:bg-white/20 
+        hover:ring-white/50
+        hover:scale-105
+        active:scale-95
+        transition-all duration-200
+        flex items-center gap-2
+      "
+    >
+      <span>START</span>
+      <svg 
+        className="w-5 h-5" 
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        {/* モンスターボールの上半分（赤） */}
+        <path 
+          d="M12 2C6.477 2 2 6.477 2 12H22C22 6.477 17.523 2 12 2Z" 
+          fill="#FF0000"
+        />
+        {/* モンスターボールの下半分（白） */}
+        <path 
+          d="M2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12H2Z" 
+          fill="#FFFFFF"
+        />
+        {/* 中央の線 */}
+        <path 
+          d="M2 11H22V13H2V11Z" 
+          fill="#000000"
+        />
+        {/* 中央の円 */}
+        <circle 
+          cx="12" 
+          cy="12" 
+          r="3" 
+          fill="#000000" 
+          stroke="#FFFFFF" 
+          strokeWidth="1"
+        />
+        {/* 中央の小さい円 */}
+        <circle 
+          cx="12" 
+          cy="12" 
+          r="1.5" 
+          fill="#FFFFFF"
+        />
+      </svg>
+    </button>
+  );
+};
 
 const MainContent: React.FC = () => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
@@ -21,7 +83,11 @@ const MainContent: React.FC = () => {
         <div className="p-4 bg-red-800 text-white">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">ジムバッジ図鑑</h1>
-            <DynamicWidget />
+            <CustomLoginButton />
+            {/* DynamicWidgetは非表示にしておく */}
+            <div className="hidden">
+              <DynamicWidget />
+            </div>
           </div>
           <div className="flex justify-between text-sm">
             <span>獲得数: {obtainedBadges.size}</span>
