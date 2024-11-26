@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Map, User, Award, Clock } from 'lucide-react';
-import { useTorus } from './hooks/useTorus';
 import {
   DynamicContextProvider,
   DynamicWidget,
