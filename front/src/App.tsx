@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { Map, User, Award, Clock } from 'lucide-react';
-import { useTorus } from './hooks/useTorus'
+import { useTorus } from './hooks/useTorus';
+import {
+  DynamicContextProvider,
+  DynamicWidget,
+} from "@dynamic-labs/sdk-react-core";
+import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 
 interface Badge {
   id: string;
@@ -58,13 +63,9 @@ const BadgeComponents: Record<string, React.FC> = {
   badge5: Badge5,
 };
 
-const App: React.FC = () => {
+const MainContent: React.FC = () => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [obtainedBadges, setObtainedBadges] = useState<Set<string>>(new Set(['badge2', 'badge3']));
-
-  //torus
-  // const { isConnected, account, connect } = useTorus();
-
 
   const badges: Badge[] = [
     { 
@@ -122,7 +123,10 @@ const App: React.FC = () => {
     <div className="bg-red-600 min-h-screen p-6">
       <div className="max-w-4xl mx-auto bg-red-700 rounded-lg shadow-2xl overflow-hidden">
         <div className="p-4 bg-red-800 text-white">
-          <h1 className="text-2xl font-bold text-center mb-2">ジムバッジ図鑑</h1>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold">ジムバッジ図鑑</h1>
+            <DynamicWidget />
+          </div>
           <div className="flex justify-between text-sm">
             <span>獲得数: {obtainedBadges.size}</span>
             <span>総数: {badges.length}</span>
@@ -216,6 +220,19 @@ const App: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <DynamicContextProvider
+      settings={{
+        environmentId: "28351dce-984f-4ae2-9624-1264f9470f06",
+        walletConnectors: [EthereumWalletConnectors],
+      }}
+    >
+      <MainContent />
+    </DynamicContextProvider>
   );
 };
 

@@ -10,6 +10,10 @@
     "start": "vite preview --port $PORT"
   },
   "dependencies": {
+    "@dynamic-labs/ethereum": "^3.8.2",
+    "@dynamic-labs/ethereum-all": "^0.18.30",
+    "@dynamic-labs/sdk-react": "^0.18.30",
+    "@dynamic-labs/sdk-react-core": "^3.8.2",
     "@toruslabs/torus-embed": "^1.40.0",
     "ethers": "^6.8.0",
     "lucide-react": "^0.290.0",
