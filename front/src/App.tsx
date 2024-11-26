@@ -1,118 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Map, User, Award, Clock } from 'lucide-react';
 import {
   DynamicContextProvider,
   DynamicWidget,
 } from "@dynamic-labs/sdk-react-core";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
-
-interface Badge {
-  id: string;
-  name: string;
-  gym: string;
-  leader: string;
-  url: string;
-  color: string;
-  hours: string; // 営業時間を追加
-}
-
-type BadgeComponent = React.FC<{}>;
-
-const Badge1: BadgeComponent = () => (
-  <svg viewBox="0 0 24 24" className="w-full h-full">
-    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" 
-          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-
-const Badge2: BadgeComponent = () => (
-  <svg viewBox="0 0 24 24" className="w-full h-full">
-    <path d="M12 2 L22 12 L12 22 L2 12 Z" fill="none" stroke="currentColor" strokeWidth="2" />
-    <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="2" />
-  </svg>
-);
-
-const Badge3: BadgeComponent = () => (
-  <svg viewBox="0 0 24 24" className="w-full h-full">
-    <path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z" 
-          fill="none" stroke="currentColor" strokeWidth="2" />
-  </svg>
-);
-
-const Badge4: BadgeComponent = () => (
-  <svg viewBox="0 0 24 24" className="w-full h-full">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor" />
-    <path d="M12 6l3.09 6.31L22 13.5l-5 4.87 1.18 6.88L12 21.5l-6.18 3.75L7 18.37l-5-4.87 6.91-1.19L12 6z" 
-          fill="none" stroke="currentColor" strokeWidth="1" />
-  </svg>
-);
-
-const Badge5: BadgeComponent = () => (
-  <svg viewBox="0 0 24 24" className="w-full h-full">
-    <path d="M5 5h14v14H5z" fill="none" stroke="currentColor" strokeWidth="2" />
-    <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-
-const BadgeComponents: Record<string, React.FC> = {
-  badge1: Badge1,
-  badge2: Badge2,
-  badge3: Badge3,
-  badge4: Badge4,
-  badge5: Badge5,
-};
+import { badges, BadgeComponents, type Badge } from './Badges';
 
 const MainContent: React.FC = () => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [obtainedBadges, setObtainedBadges] = useState<Set<string>>(new Set(['badge2', 'badge3']));
-
-  const badges: Badge[] = [
-    { 
-      id: 'badge1', 
-      name: 'トークンバッジ', 
-      gym: 'なんでもジム', 
-      leader: 'なんでもトークン', 
-      url: 'https://app.gather.town/app/7IQBpxNhAIni5UfR/TokenGym',
-      color: 'bg-stone-600',
-      hours: '平日 夜10:00-10:30'
-    },
-    { 
-      id: 'badge2', 
-      name: 'バッジ２', 
-      gym: 'ジム２', 
-      leader: '？？？', 
-      url: 'https://example.com/gym2',
-      color: 'bg-blue-600',
-      hours: '毎日 20:00-21:00'
-    },
-    { 
-      id: 'badge3', 
-      name: 'バッジ３', 
-      gym: 'ジム３', 
-      leader: '？？？', 
-      url: 'https://example.com/gym3',
-      color: 'bg-yellow-500',
-      hours: '水-月 19:00-20:00'
-    },
-    { 
-      id: 'badge4', 
-      name: 'バッジ４', 
-      gym: 'ジム４', 
-      leader: '？？？', 
-      url: 'https://example.com/gym4',
-      color: 'bg-green-600',
-      hours: '土日祝 10:00-17:00'
-    },
-    { 
-      id: 'badge5', 
-      name: 'バッジ５', 
-      gym: 'ジム５', 
-      leader: '？？？', 
-      url: 'https://example.com/gym5',
-      color: 'bg-purple-600',
-      hours: '年中無休 24時間'
-    },
-  ];
 
   const handleGymVisit = (url: string): void => {
     window.open(url, '_blank');
