@@ -8,6 +8,7 @@ export interface Badge {
   url: string;
   color: string;
   hours: string;
+  contractAddress: string;
 }
 
 // バッジコンポーネントの定義
@@ -91,69 +92,77 @@ export const badges: Badge[] = [
     leader: 'なんでもトークン', 
     url: 'https://app.gather.town/app/7IQBpxNhAIni5UfR/TokenGym',
     color: 'bg-stone-600',
-    hours: '平日 夜10:00-10:30'
+    hours: '平日 22:00-22:30',
+    contractAddress: '0x1234567890123456789012345678901234567890'
   },
   { 
     id: 'badge2', 
-    name: 'テクニカルバッジ', 
-    gym: 'テックジム', 
-    leader: 'テックマスター', 
+    name: '？？？バッジ', 
+    gym: '？？？ジム', 
+    leader: '？？？', 
     url: 'https://example.com/gym2',
     color: 'bg-blue-600',
-    hours: '毎日 20:00-21:00'
+    hours: '毎日 20:00-21:00',
+    contractAddress: '0x2345678901234567890123456789012345678901'
   },
   { 
     id: 'badge3', 
-    name: 'スターバッジ', 
-    gym: 'スタージム', 
-    leader: 'スターマスター', 
+    name: '？？？バッジ', 
+    gym: '？？？ジム', 
+    leader: '？？？', 
     url: 'https://example.com/gym3',
     color: 'bg-yellow-500',
-    hours: '水-月 19:00-20:00'
+    hours: '水-月 19:00-20:00',
+    contractAddress: '0x3456789012345678901234567890123456789012'
   },
   { 
     id: 'badge4', 
-    name: 'エリートバッジ', 
-    gym: 'エリートジム', 
-    leader: 'エリートマスター', 
+    name: '？？？バッジ', 
+    gym: '？？？ジム', 
+    leader: '？？？', 
     url: 'https://example.com/gym4',
     color: 'bg-green-600',
-    hours: '土日祝 10:00-17:00'
+    hours: '土日祝 10:00-17:00',
+    contractAddress: '0x4567890123456789012345678901234567890123'
   },
   { 
     id: 'badge5', 
-    name: 'バランスバッジ', 
-    gym: 'バランスジム', 
-    leader: 'バランスマスター', 
+    name: '？？？バッジ', 
+    gym: '？？？ジム', 
+    leader: '？？？', 
     url: 'https://example.com/gym5',
     color: 'bg-purple-600',
-    hours: '年中無休 24時間'
+    hours: '年中無休 24時間',
+    contractAddress: '0x5678901234567890123456789012345678901234'
   },
   { 
     id: 'badge6', 
-    name: 'オクタゴンバッジ', 
-    gym: '八角形ジム', 
-    leader: 'オクタマスター', 
+    name: '？？？バッジ', 
+    gym: '？？？ジム', 
+    leader: '？？？', 
     url: 'https://example.com/gym6',
     color: 'bg-orange-600',
-    hours: '火木土 13:00-18:00'
+    hours: '火木土 13:00-18:00',
+    contractAddress: '0x6789012345678901234567890123456789012345'
   },
   { 
     id: 'badge7', 
-    name: 'クロスバッジ', 
-    gym: 'クロスジム', 
-    leader: 'クロスマスター', 
+    name: '？？？バッジ', 
+    gym: '？？？ジム', 
+    leader: '？？？', 
     url: 'https://example.com/gym7',
     color: 'bg-rose-600',
-    hours: '月水金 9:00-15:00'
+    hours: '月水金 9:00-15:00',
+    contractAddress: '0x7890123456789012345678901234567890123456'
   },
   { 
     id: 'badge8', 
-    name: 'サークルバッジ', 
-    gym: 'サークルジム', 
-    leader: 'サークルマスター', 
+    name: '？？？バッジ', 
+    gym: '？？？ジム', 
+    leader: '？？？', 
     url: 'https://example.com/gym8',
     color: 'bg-cyan-600',
-    hours: '土日 12:00-18:00'
+    hours: '土日 12:00-18:00',
+    contractAddress: '0x8901234567890123456789012345678901234567'
   },
 ];
