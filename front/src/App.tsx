@@ -73,8 +73,34 @@ const MainContent: React.FC = () => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [obtainedBadges, setObtainedBadges] = useState<Set<string>>(new Set(['badge2', 'badge3']));
 
-  const handleGymVisit = (url: string): void => {
-    window.open(url, '_blank');
+  const callApi = async () => {
+    try {
+      const response = await fetch(
+        'https://lubiqflmuevfpkdceisf.supabase.co/functions/v1/api',
+        {
+          headers: {
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1YmlxZmxtdWV2ZnBrZGNlaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI5NTYwMDgsImV4cCI6MjA0ODUzMjAwOH0.L8BhzPs6T6ewoHDQ9mCPPbPIjcXlR4rl7WpRySK7m94'
+          }
+        }
+      );
+      const data = await response.json();
+      console.log('API Response:', data);
+    } catch (error) {
+      console.error('API Error:', error);
+    }
+  }
+
+  const handleGymVisit = async (url: string): Promise<void> => {
+    try {
+      // まずAPIを呼び出し
+      await callApi();
+      // その後URLを開く
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('API call failed:', error);
+      // エラーがあってもURLは開く
+      window.open(url, '_blank');
+    }
   };
 
   return (
@@ -84,7 +110,6 @@ const MainContent: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">ジムバッジ図鑑</h1>
             <CustomLoginButton />
-            {/* DynamicWidgetは非表示にしておく */}
             <div className="hidden">
               <DynamicWidget />
             </div>
@@ -108,7 +133,9 @@ const MainContent: React.FC = () => {
                     aspect-square relative cursor-pointer
                     ${selectedBadge?.id === badge.id ? 'ring-2 ring-yellow-400' : ''}
                   `}
-                  onClick={() => setSelectedBadge(badge)}
+                  onClick={async () => {
+                    setSelectedBadge(badge);
+                  }}
                 >
                   <div className={`
                     w-full h-full rounded-lg flex items-center justify-center p-3
