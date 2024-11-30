@@ -9,59 +9,55 @@ import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { badges, BadgeComponents, type Badge } from './Badges';
 
 const CustomLoginButton: React.FC = () => {
-  const { setShowAuthFlow } = useDynamicContext();
-  
+  const { setShowAuthFlow, primaryWallet } = useDynamicContext();
+  const isConnected = !!primaryWallet;
+
   return (
     <button
       onClick={() => setShowAuthFlow(true)}
       className="
-        px-4 py-1.5 rounded-full
-        bg-white/10
-        ring-1 ring-white/30
-        text-white text-sm font-medium
-        hover:bg-white/20 
-        hover:ring-white/50
-        hover:scale-105
-        active:scale-95
-        transition-all duration-200
-        flex items-center gap-2
-      "
+       px-4 py-1.5 rounded-full
+       bg-white/10
+       ring-1 ring-white/30
+       text-white text-sm font-medium
+       hover:bg-white/20 
+       hover:ring-white/50
+       hover:scale-105
+       active:scale-95
+       transition-all duration-200
+       flex items-center gap-2
+     "
     >
-      <span>START</span>
-      <svg 
-        className="w-5 h-5" 
+      <span>{isConnected ? 'INFO' : 'START'}</span>
+      <svg
+        className="w-5 h-5"
         viewBox="0 0 24 24"
         fill="none"
       >
-        {/* モンスターボールの上半分（赤） */}
-        <path 
-          d="M12 2C6.477 2 2 6.477 2 12H22C22 6.477 17.523 2 12 2Z" 
+        <path
+          d="M12 2C6.477 2 2 6.477 2 12H22C22 6.477 17.523 2 12 2Z"
           fill="#FF0000"
         />
-        {/* モンスターボールの下半分（白） */}
-        <path 
-          d="M2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12H2Z" 
+        <path
+          d="M2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12H2Z"
           fill="#FFFFFF"
         />
-        {/* 中央の線 */}
-        <path 
-          d="M2 11H22V13H2V11Z" 
+        <path
+          d="M2 11H22V13H2V11Z"
           fill="#000000"
         />
-        {/* 中央の円 */}
-        <circle 
-          cx="12" 
-          cy="12" 
-          r="3" 
-          fill="#000000" 
-          stroke="#FFFFFF" 
+        <circle
+          cx="12"
+          cy="12"
+          r="3"
+          fill="#000000"
+          stroke="#FFFFFF"
           strokeWidth="1"
         />
-        {/* 中央の小さい円 */}
-        <circle 
-          cx="12" 
-          cy="12" 
-          r="1.5" 
+        <circle
+          cx="12"
+          cy="12"
+          r="1.5"
           fill="#FFFFFF"
         />
       </svg>
@@ -70,6 +66,8 @@ const CustomLoginButton: React.FC = () => {
 };
 
 const MainContent: React.FC = () => {
+  const { primaryWallet } = useDynamicContext();
+  const isConnected = !!primaryWallet;
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [obtainedBadges, setObtainedBadges] = useState<Set<string>>(new Set(['badge2', 'badge3']));
 
@@ -92,13 +90,10 @@ const MainContent: React.FC = () => {
 
   const handleGymVisit = async (url: string): Promise<void> => {
     try {
-      // まずAPIを呼び出し
       await callApi();
-      // その後URLを開く
       window.open(url, '_blank');
     } catch (error) {
       console.error('API call failed:', error);
-      // エラーがあってもURLは開く
       window.open(url, '_blank');
     }
   };
@@ -121,7 +116,6 @@ const MainContent: React.FC = () => {
         </div>
 
         <div className="p-4 space-y-4">
-          {/* コンパクトなバッジグリッド */}
           <div className="grid grid-cols-4 gap-2 bg-slate-800 rounded-lg p-4">
             {badges.map(badge => {
               const isObtained = obtainedBadges.has(badge.id);
@@ -130,42 +124,38 @@ const MainContent: React.FC = () => {
                 <div
                   key={badge.id}
                   className={`
-                    aspect-square relative cursor-pointer
-                    ${selectedBadge?.id === badge.id ? 'ring-2 ring-yellow-400' : ''}
-                  `}
-                  onClick={async () => {
-                    setSelectedBadge(badge);
-                  }}
+                   aspect-square relative cursor-pointer
+                   ${selectedBadge?.id === badge.id ? 'ring-2 ring-yellow-400' : ''}
+                 `}
+                  onClick={() => setSelectedBadge(badge)}
                 >
                   <div className={`
-                    w-full h-full rounded-lg flex items-center justify-center p-3
-                    ${isObtained ? badge.color : 'bg-slate-700'}
-                    transition-colors duration-300 hover:opacity-90
-                  `}>
+                   w-full h-full rounded-lg flex items-center justify-center p-3
+                   ${isObtained ? badge.color : 'bg-slate-700'}
+                   transition-colors duration-300 hover:opacity-90
+                 `}>
                     <BadgeIcon />
                   </div>
-                  {/* 獲得状態インジケーター */}
                   <div className={`
-                    absolute -top-1 -right-1 w-3 h-3 rounded-full
-                    ${isObtained ? 'bg-green-500' : 'bg-gray-600'}
-                    border-2 border-slate-800
-                  `} />
+                   absolute -top-1 -right-1 w-3 h-3 rounded-full
+                   ${isObtained ? 'bg-green-500' : 'bg-gray-600'}
+                   border-2 border-slate-800
+                 `} />
                 </div>
               );
             })}
           </div>
 
-          {/* バッジ詳細パネル */}
           <div className="bg-slate-800 rounded-lg p-4">
             {selectedBadge ? (
               <div className="text-white space-y-4">
                 <div className="flex justify-center mb-6">
                   <div className={`
-                    w-24 h-24 rounded-full p-4
-                    ${selectedBadge.color}
-                    flex items-center justify-center
-                    shadow-lg
-                  `}>
+                   w-24 h-24 rounded-full p-4
+                   ${selectedBadge.color}
+                   flex items-center justify-center
+                   shadow-lg
+                 `}>
                     {React.createElement(BadgeComponents[selectedBadge.id])}
                   </div>
                 </div>
@@ -192,11 +182,18 @@ const MainContent: React.FC = () => {
                     獲得済み
                   </div>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => handleGymVisit(selectedBadge.url)}
-                    className="mt-4 w-full p-2 rounded-lg text-center bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-300"
+                    disabled={!isConnected}
+                    className={`
+                     mt-4 w-full p-2 rounded-lg text-center
+                     ${isConnected
+                        ? 'bg-blue-600 hover:bg-blue-700'
+                        : 'bg-gray-500 cursor-not-allowed'}
+                     text-white transition-colors duration-300
+                   `}
                   >
-                    ジムに向かう
+                    {isConnected ? 'ジムに向かう' : 'Discord接続(右上)'}
                   </button>
                 )}
               </div>
