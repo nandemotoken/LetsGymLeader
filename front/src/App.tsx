@@ -8,8 +8,14 @@ import {
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { badges, BadgeComponents, type Badge } from './Badges';
 
+
 const CustomLoginButton: React.FC = () => {
-  const { setShowAuthFlow, primaryWallet } = useDynamicContext();
+  const { setShowAuthFlow, primaryWallet, user } = useDynamicContext();
+  const discordUser = user?.verifiedCredentials?.find(cred => cred.oauthProvider === 'discord');
+  // console.log('All credentials:', user?.verifiedCredentials);
+  console.log('Discord ID:', discordUser?.id);
+  
+
   const isConnected = !!primaryWallet;
 
   return (
@@ -76,9 +82,14 @@ const MainContent: React.FC = () => {
       const response = await fetch(
         'https://lubiqflmuevfpkdceisf.supabase.co/functions/v1/api',
         {
+          method: 'POST',
           headers: {
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1YmlxZmxtdWV2ZnBrZGNlaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI5NTYwMDgsImV4cCI6MjA0ODUzMjAwOH0.L8BhzPs6T6ewoHDQ9mCPPbPIjcXlR4rl7WpRySK7m94'
-          }
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1YmlxZmxtdWV2ZnBrZGNlaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI5NTYwMDgsImV4cCI6MjA0ODUzMjAwOH0.L8BhzPs6T6ewoHDQ9mCPPbPIjcXlR4rl7WpRySK7m94',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            walletAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
+          })
         }
       );
       const data = await response.json();
