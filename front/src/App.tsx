@@ -11,7 +11,7 @@ const particle = new ParticleNetwork({
   chainName: 'ethereum',
   chainId: 1,
   wallet: {
-    displayWalletEntry: true,
+    displayWalletEntry: false,
   }
 });
 
@@ -60,7 +60,7 @@ const CustomLoginButton: React.FC<CustomLoginButtonProps> = ({ userInfo, onLogin
        flex items-center gap-2
      "
     >
-      <span>{userInfo ? 'INFO' : 'START'}</span>
+      <span>{userInfo ? 'PAUSE' : 'START'}</span>
       <svg
         className="w-5 h-5"
         viewBox="0 0 24 24"
