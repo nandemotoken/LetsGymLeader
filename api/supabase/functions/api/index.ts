@@ -8,9 +8,37 @@ interface RequestBody {
   walletAddress?: string;
 }
 
+// Discordにメッセージを送信する関数
+async function sendDiscordNotification(message: string) {
+  // @ts-ignore
+  const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL'); // Discord webhook URLを環境変数から取得
+  
+  if (!webhookUrl) {
+    throw new Error('Discord webhook URL is not configured');
+  }
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content: message,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Discord notification failed: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error('Error sending Discord notification:', error);
+    throw error;
+  }
+}
+
 // @ts-ignore
 Deno.serve(async (req) => {
-  // OPTIONSリクエストへの対応
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -19,8 +47,8 @@ Deno.serve(async (req) => {
     // @ts-ignore
     const apiKey = Deno.env.get('TEST_SECRET')
 
-    // GETリクエストの処理
     if (req.method === 'GET') {
+      await sendDiscordNotification('GET request received!');
       return new Response(JSON.stringify({
         message: "Hello from Supabase!",
         key: apiKey
@@ -32,23 +60,20 @@ Deno.serve(async (req) => {
       });
     }
 
-    // POSTリクエストの処理
     if (req.method === 'POST') {
       const body: RequestBody = await req.json();
 
-      // ウォレットアドレスの存在確認
       if (!body.walletAddress) {
         throw new Error('Wallet address is required');
       }
 
-      // @ts-ignore
-      console.log(`body.walletAddress:${body.walletAddress}`)
-
-      // Ethereum アドレスの形式チェック（0xで始まる40文字の16進数）
       const addressRegex = /^0x[a-fA-F0-9]{40}$/;
       if (!addressRegex.test(body.walletAddress)) {
         throw new Error('Invalid wallet address format');
       }
+
+      // Discord通知を送信
+      await sendDiscordNotification(`新しいウォレットアドレスが登録されました: ${body.walletAddress}`);
 
       return new Response(JSON.stringify({
         message: "Hello from Supabase!",
@@ -65,6 +90,13 @@ Deno.serve(async (req) => {
     throw new Error('Method not allowed');
 
   } catch (error) {
+    // エラーの場合もDiscordに通知
+    try {
+      await sendDiscordNotification(`エラーが発生しました: ${error.message}`);
+    } catch (discordError) {
+      console.error('Failed to send error notification to Discord:', discordError);
+    }
+
     return new Response(JSON.stringify({
       error: error.message
     }), {

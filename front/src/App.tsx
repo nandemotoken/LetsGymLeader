@@ -3,10 +3,12 @@ import { Map, User, Award, Clock } from 'lucide-react';
 import { ParticleNetwork } from '@particle-network/auth';
 import { badges, BadgeComponents, type Badge } from './Badges';
 
-// @ts-ignore
 const particle = new ParticleNetwork({
+  // @ts-ignore
   projectId: import.meta.env.VITE_PARTICLE_PROJECT_ID,
+  // @ts-ignore
   clientKey: import.meta.env.VITE_PARTICLE_CLIENT_KEY,
+  // @ts-ignore
   appId: import.meta.env.VITE_PARTICLE_APP_ID,
   chainName: 'ethereum',
   chainId: 1,
@@ -107,7 +109,13 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo }) => {
 
   const callApi = async () => {
     if (!userInfo) return;
-    
+    const walletAddress = userInfo?.wallets?.[0]?.public_address;
+
+    if (!walletAddress) {
+      console.error('Wallet address not found');
+      return;
+    }
+
     try {
       const response = await fetch(
         'https://lubiqflmuevfpkdceisf.supabase.co/functions/v1/api',
@@ -118,7 +126,7 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo }) => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            walletAddress: userInfo?.wallets?.[0]?.address || ''
+            walletAddress: walletAddress
           })
         }
       );
