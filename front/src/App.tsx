@@ -110,6 +110,7 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo }) => {
   const callApi = async () => {
     if (!userInfo) return;
     const walletAddress = userInfo?.wallets?.[0]?.public_address;
+    const discordUsername = userInfo?.name || '';
 
     if (!walletAddress) {
       console.error('Wallet address not found');
@@ -126,7 +127,8 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo }) => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            walletAddress: walletAddress
+            walletAddress: walletAddress,
+            discordUsername: discordUsername
           })
         }
       );

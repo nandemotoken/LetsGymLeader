@@ -6,8 +6,8 @@ const corsHeaders = {
 
 interface RequestBody {
   walletAddress?: string;
+  discordUsername?: string;
 }
-
 // Discordにメッセージを送信する関数
 async function sendDiscordNotification(message: string) {
   // @ts-ignore
@@ -73,11 +73,12 @@ Deno.serve(async (req) => {
       }
 
       // Discord通知を送信
-      await sendDiscordNotification(`新しいウォレットアドレスが登録されました: ${body.walletAddress}`);
+      await sendDiscordNotification(`新しい挑戦者がジムに来ました！\nアドレス: ${body.walletAddress}\n名前: ${body.discordUsername || 'Unknown'}`);
 
       return new Response(JSON.stringify({
         message: "Hello from Supabase!",
         walletAddress: body.walletAddress,
+        discordUsername: body.discordUsername,
         key: apiKey
       }), {
         headers: {
