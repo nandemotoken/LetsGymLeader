@@ -41,10 +41,6 @@ contract GymBadge is ERC721, Ownable, IERC4906 {
         currentMetadataId = _currentMetadataId;
     }
 
-    function checkGymLeader(address _address) public view returns (bool) {
-        return isGymLeader[_address];
-    }
-
     function addGymLeader(address _newGymLeader) public onlyOwner {
         isGymLeader[_newGymLeader] = true;
     }
@@ -67,6 +63,13 @@ contract GymBadge is ERC721, Ownable, IERC4906 {
         emit BatchMetadataUpdate(1, type(uint256).max);
     }
 
+    function checkGymLeader(address _address) public view returns (bool) {
+        return isGymLeader[_address];
+    }
+
+    function getMetadataList() public view returns (string[] memory) {
+        return badgeURIs;
+    }
 
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         require(ownerOf(_tokenId) != address(0), "ERC721: URI query for nonexistent token");
