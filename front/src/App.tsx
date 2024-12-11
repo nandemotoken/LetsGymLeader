@@ -1,21 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Map, User, Award, Clock } from 'lucide-react';
-import { ParticleNetwork } from '@particle-network/auth';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { badges, BadgeComponents, type Badge } from './Badges';
-
-const particle = new ParticleNetwork({
-  // @ts-ignore
-  projectId: import.meta.env.VITE_PARTICLE_PROJECT_ID,
-  // @ts-ignore
-  clientKey: import.meta.env.VITE_PARTICLE_CLIENT_KEY,
-  // @ts-ignore
-  appId: import.meta.env.VITE_PARTICLE_APP_ID,
-  chainName: 'ethereum',
-  chainId: 1,
-  wallet: {
-    displayWalletEntry: false,
-  }
-});
 
 interface CustomLoginButtonProps {
   userInfo: any;
@@ -24,13 +10,11 @@ interface CustomLoginButtonProps {
 }
 
 const CustomLoginButton: React.FC<CustomLoginButtonProps> = ({ userInfo, onLoginSuccess, onLogout }) => {
+  const { login, logout } = usePrivy();
+
   const handleLogin = async () => {
     try {
-      const response = await particle.auth.login({
-        preferredAuthType: 'discord',
-      });
-      console.log('Login success:', response);
-      onLoginSuccess(response);
+      await login({ loginMethods: ['discord'] });
     } catch (error) {
       console.error('Login failed:', error);
     }
@@ -38,7 +22,7 @@ const CustomLoginButton: React.FC<CustomLoginButtonProps> = ({ userInfo, onLogin
 
   const handleLogout = async () => {
     try {
-      await particle.auth.logout();
+      await logout();
       onLogout();
       console.log('Logout success');
     } catch (error) {
@@ -106,18 +90,24 @@ interface MainContentProps {
 const MainContent: React.FC<MainContentProps> = ({ userInfo }) => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const [obtainedBadges, setObtainedBadges] = useState<Set<string>>(new Set(['badge2', 'badge3']));
+  const { wallets } = useWallets();
 
   const callApi = async () => {
-    if (!userInfo) return;
-    const walletAddress = userInfo?.wallets?.[0]?.public_address;
-    const discordUsername = userInfo?.name || '';
-
-    if (!walletAddress) {
-      console.error('Wallet address not found');
-      return;
-    }
-
+    if (!userInfo || !wallets.length) return;
+    
     try {
+      const wallet = wallets[0];
+      await wallet.switchChain(1); // Ethereum Mainnet
+      const provider = await wallet.getEthersProvider();
+      const signer = provider.getSigner();
+      const walletAddress = await signer.getAddress();
+      const discordUsername = userInfo?.discord?.username || '';
+
+      if (!walletAddress) {
+        console.error('Wallet address not found');
+        return;
+      }
+
       const response = await fetch(
         'https://lubiqflmuevfpkdceisf.supabase.co/functions/v1/api',
         {
@@ -244,24 +234,15 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo }) => {
 
 const App: React.FC = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
+  const { authenticated, user } = usePrivy();
 
   useEffect(() => {
-    // 初期ロード時にログイン状態をチェック
-    const checkLoginStatus = async () => {
-      try {
-        const isLoggedIn = await particle.auth.isLoginAsync();
-        if (isLoggedIn) {
-          const userInfo = await particle.auth.getUserInfo();
-          setUserInfo(userInfo);
-        }
-      } catch (error) {
-        // エラーを抑制（未ログイン状態として扱う）
-        console.debug('Not logged in');
-        setUserInfo(null);
-      }
-    };
-    checkLoginStatus();
-  }, []);
+    if (authenticated && user) {
+      setUserInfo(user);
+    } else {
+      setUserInfo(null);
+    }
+  }, [authenticated, user]);
 
   return (
     <div className="bg-red-600 min-h-screen p-6">
