@@ -10,8 +10,9 @@ contract GymBadge is ERC721, Ownable, IERC4906 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     mapping(address => bool) public isGymLeader;
-
-    string private _baseTokenURI;
+    string[] badgeURIs;
+    mapping(uint => uint) metadataIdMap;
+    uint currentMetadataId = 0;
 
     event BadgeIssued(
         address indexed gymLeader,
@@ -19,19 +20,25 @@ contract GymBadge is ERC721, Ownable, IERC4906 {
         uint256 tokenId
     );
 
-    constructor(string memory _name, string memory _symbol)
-        ERC721(_name, _symbol)
+    constructor(string memory _badgeMetadataURI)
+        ERC721("gym", "BADGE")
         Ownable(msg.sender)
     {
-        //Default construction.
+        addMetadata(_badgeMetadataURI);
     }
 
     function sendBadge(address _trainer) public {
         require(isGymLeader[msg.sender], "Caller is not a gym leader");
         _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
+        uint newTokenId = _tokenIds.current();
+        metadataIdMap[newTokenId] = currentMetadataId;
         _safeMint(_trainer, newTokenId);
         emit BadgeIssued(msg.sender, _trainer, newTokenId);
+    }
+
+    function setCurrentMetadataId (uint _currentMetadataId) public onlyOwner {
+        require(_currentMetadataId < badgeURIs.length, "Invalid metadata ID");
+        currentMetadataId = _currentMetadataId;
     }
 
     function checkGymLeader(address _address) public view returns (bool) {
@@ -50,17 +57,19 @@ contract GymBadge is ERC721, Ownable, IERC4906 {
         revert("Ownership cannot be renounced");
     }
 
-    function setMetadata(string memory baseURI) public onlyOwner {
-        _baseTokenURI = baseURI;
+    function addMetadata(string memory _badgeURI) public onlyOwner {
+        badgeURIs.push(_badgeURI);
+    }
+
+    function changeMetadata(string memory _badgeURI, uint _badgeNumber) public onlyOwner {
+        require(_badgeNumber < badgeURIs.length, "Invalid badge number");
+        badgeURIs[_badgeNumber] = _badgeURI;
         emit BatchMetadataUpdate(1, type(uint256).max);
     }
 
-    function _baseURI() internal view virtual override returns (string memory) {
-        return _baseTokenURI;
-    }
 
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         require(ownerOf(_tokenId) != address(0), "ERC721: URI query for nonexistent token");
-        return _baseTokenURI;
+        return badgeURIs[metadataIdMap[_tokenId]];
     }
 }
