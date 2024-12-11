@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { badges, Badge } from '../common/Badge';
 
 function GymLeader() {
   const [count, setCount] = useState(0)
@@ -34,7 +35,7 @@ function GymLeader() {
   return (
     <>
       <h1>ジムリーダー専用画面</h1>
-      
+
       {authenticated ? (
         <div>
           {address && <p>Wallet Address: {address}</p>}
