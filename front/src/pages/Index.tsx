@@ -2,11 +2,57 @@ import React, { useState, useEffect } from 'react';
 import { Map, User, Award, Clock } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { badges, Badge } from '../common/Badge';
+// import { ethers } from 'ethers';
+import { 
+  BrowserProvider, 
+  Contract, 
+  Interface,
+  JsonRpcProvider,
+  Provider 
+} from 'ethers'; 
 
 interface CustomLoginButtonProps {
   userInfo: any;
   onLoginSuccess: (userInfo: any) => void;
   onLogout: () => void;
+}
+
+const ERC721_ABI = [
+  "function balanceOf(address owner) view returns (uint256)",
+  "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)"
+];
+
+export async function checkBadgeOwnership(
+  walletAddress: string,
+  badges: Badge[],
+  provider: Provider
+): Promise<Set<number>> {
+  const obtainedBadges = new Set<number>();
+
+  for (const badge of badges) {
+    try {
+      const contract = new Contract(
+        badge.contractAddress,
+        ERC721_ABI,
+        provider
+      );
+
+      // Check if user has any tokens from this contract
+      const balance = await contract.balanceOf(walletAddress);
+      
+      if (balance > 0n) {
+        obtainedBadges.add(badge.id);
+        console.log(`trainer has ${(badge.id)}`)
+      } else {
+        console.log(`trainer doesn't have ${(badge.id)}`)
+      }
+    } catch (error) {
+      //maybe contractaddress is not valid ERC721
+      console.error(`Error checking badge ${badge.id}:`, error);
+    }
+  }
+
+  return obtainedBadges;
 }
 
 const CustomLoginButton: React.FC<CustomLoginButtonProps> = ({ userInfo, onLoginSuccess, onLogout }) => {
@@ -89,7 +135,8 @@ interface MainContentProps {
 
 const MainContent: React.FC<MainContentProps> = ({ userInfo }) => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
-  const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set([1,2,3]));
+  const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set());
+  // const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set([1, 2, 3]));
   const { wallets } = useWallets();
 
   const callApi = async () => {
@@ -236,14 +283,46 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo }) => {
 const Index: React.FC = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
   const { authenticated, user } = usePrivy();
+  const { wallets } = useWallets();
+  const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (authenticated && user) {
       setUserInfo(user);
+
+      // ユーザー認証後にバッジの所持確認を実行
+      const checkBadges = async () => {
+        if (!wallets.length) return;
+        
+        try {
+          const wallet = wallets[0];
+          await wallet.switchChain(1);
+          const provider = await wallet.getEthersProvider()
+          const signer = await provider.getSigner(); 
+          const walletAddress = await signer.getAddress();
+          const jsonRPC = new JsonRpcProvider("https://optimism-rpc.publicnode.com")
+
+          const ownedBadges = await checkBadgeOwnership(
+            walletAddress,
+            badges,
+            jsonRPC
+          );
+
+
+          setObtainedBadges(ownedBadges);
+        } catch (error) {
+          console.error('Failed to check badge ownership:', error);
+        }
+      };
+
+
+      checkBadges();
     } else {
       setUserInfo(null);
+      // ユーザーがログアウトしたら obtainedBadges もリセット
+      setObtainedBadges(new Set());
     }
-  }, [authenticated, user]);
+  }, [authenticated, user, wallets]);
 
   return (
     <div className="bg-red-600 min-h-screen p-6">
