@@ -21,9 +21,9 @@ export const badges: Badge[] = [
     gym: 'マジックジム', 
     leader: 'なんでもトークン', 
     url: 'https://app.gather.town/app/7IQBpxNhAIni5UfR/TokenGym',
-    color: 'bg-stone-600',
+    color: 'bg-purple-600',
     hours: '平日 22:00-22:30',
-    contractAddress: '0x1234567890123456789012345678901234567890',
+    contractAddress: '0x3bC4930D0192439De245bC2C94dE04c768306b27',
     GymLeaderAddress: ['0x290c78BB40d532671ACbccF0988deCe12bff3CB3'],
     svg:() => (
       <svg viewBox="0 0 24 24" className="w-full h-full">
@@ -90,7 +90,7 @@ export const badges: Badge[] = [
     gym: '？？？ジム', 
     leader: '？？？', 
     url: 'https://example.com/gym5',
-    color: 'bg-purple-600',
+    color: 'bg-stone-600',
     hours: '年中無休 24時間',
     contractAddress: '0x5678901234567890123456789012345678901234',
     GymLeaderAddress: [''],

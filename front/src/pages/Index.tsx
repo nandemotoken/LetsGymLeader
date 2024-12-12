@@ -89,7 +89,7 @@ interface MainContentProps {
 
 const MainContent: React.FC<MainContentProps> = ({ userInfo }) => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
-  const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set([2, 3]));
+  const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set([1,2,3]));
   const { wallets } = useWallets();
 
   const callApi = async () => {
