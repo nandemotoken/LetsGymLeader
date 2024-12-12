@@ -131,11 +131,12 @@ const CustomLoginButton: React.FC<CustomLoginButtonProps> = ({ userInfo, onLogin
 
 interface MainContentProps {
   userInfo: any;
+  obtainedBadges: Set<number>;
 }
 
-const MainContent: React.FC<MainContentProps> = ({ userInfo }) => {
+const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
-  const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set());
+  // const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set());
   // const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set([1, 2, 3]));
   const { wallets } = useWallets();
 
@@ -341,7 +342,10 @@ const Index: React.FC = () => {
             <span>総数: {badges.length}</span>
           </div>
         </div>
-        <MainContent userInfo={userInfo} />
+        <MainContent 
+          userInfo={userInfo} 
+          obtainedBadges={obtainedBadges}
+        />
       </div>
     </div>
   );
