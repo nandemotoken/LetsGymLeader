@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ジムバッジNFT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 40px;
+            background-color: #ff4444;
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .title-section p {
+            color: #fff;
+            font-size: 1.2em;
+        }
+
+        .guide-card {
+            background: #fff;
+            border: 3px solid #ff4444;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            transform-origin: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .guide-card.expanded {
+            transform: scale(1.02);
+        }
+
+        .guide-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid #ff4444;
+        }
+
+        .expanded .guide-image {
+            height: 300px;
+        }
+
+        .card-content {
+            padding: 20px;
+            background: #fff;
+        }
+
+        .level-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #fff;
+            color: #ff4444;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            z-index: 2;
+            border: 2px solid #ff4444;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #ff4444;
+            margin-bottom: 15px;
+            position: relative;
+            padding-left: 20px;
+            font-weight: bold;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 4px;
+            height: 70%;
+            background: #ff4444;
+            transform: translateY(-50%);
+        }
+
+        .content {
+            font-size: 1.1em;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            color: #555;
+        }
+
+        .expanded .content {
+            max-height: 500px;
+            margin-top: 15px;
+        }
+
+        .tip-box {
+            background: #fff5f5;
+            border: 2px solid #ff4444;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease 0.1s;
+        }
+
+        .expanded .tip-box {
+            transform: translateX(0);
+        }
+
+        .tip-title {
+            color: #ff4444;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .guide-card {
+            animation: cardAppear 0.3s ease forwards;
+            opacity: 0;
+        }
+
+        .guide-card:nth-child(2) { animation-delay: 0.1s; }
+        .guide-card:nth-child(3) { animation-delay: 0.2s; }
+        .guide-card:nth-child(4) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title-section">
+            <p>はじめよう! ジムバッジNFT</p>
+        </div>
+
+        <div class="guide-card" onclick="toggleCard(this)">
+            <div class="level-badge">click</div>
+            <img src="./assets/1.png" alt="基本操作の解説" class="guide-image">
+            <div class="card-content">
+                <h2 class="section-title">はじめての冒険</h2>
+                <div class="content">
+                    <p>冒険を始めるための基本的な操作方法を解説します。まずは街の中を探索して、様々なNPCと会話をしてみましょう！</p>
+                    <div class="tip-box">
+                        <div class="tip-title">初心者向けTIPS</div>
+                        <p>街の中央広場にいる案内人から、現在進行可能なクエストの情報が得られます！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="guide-card" onclick="toggleCard(this)">
+            <div class="level-badge">click</div>
+            <img src="./assets/2.png" alt="戦闘システムの解説" class="guide-image">
+            <div class="card-content">
+                <h2 class="section-title">戦闘システム</h2>
+                <div class="content">
+                    <p>敵との戦闘では、タイミングが重要です。攻撃と回避を組み合わせて、効率的に戦いましょう！</p>
+                    <div class="tip-box">
+                        <div class="tip-title">戦闘TIPS</div>
+                        <p>敵の攻撃モーションをよく観察することで、最適な回避タイミングが分かります！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="guide-card" onclick="toggleCard(this)">
+            <div class="level-badge">click</div>
+            <img src="./assets/3.png" alt="アイテム作成の解説" class="guide-image">
+            <div class="card-content">
+                <h2 class="section-title">アイテムクラフト</h2>
+                <div class="content">
+                    <p>素材の組み合わせで、様々な装備品が作成可能です。レアな素材ほど、強力な装備が作れます！</p>
+                    <div class="tip-box">
+                        <div class="tip-title">クラフトTIPS</div>
+                        <p>夜間に出現する特殊モンスターからは、レアな素材が手に入りやすいです！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="guide-card" onclick="toggleCard(this)">
+            <div class="level-badge">click</div>
+            <img src="./assets/4.png" alt="隠し要素の解説" class="guide-image">
+            <div class="card-content">
+                <h2 class="section-title">隠し要素</h2>
+                <div class="content">
+                    <p>マップ上には多くの秘密が隠されています。壊せる壁、隠しダンジョン、レアアイテム...</p>
+                    <div class="tip-box">
+                        <div class="tip-title">発見のコツ</div>
+                        <p>怪しい壁には必ず触れてみましょう。新たな冒険が始まるかもしれません！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentExpanded = null;
+
+        function toggleCard(card) {
+            if (currentExpanded && currentExpanded !== card) {
+                currentExpanded.classList.remove('expanded');
+            }
+            
+            card.classList.toggle('expanded');
+            currentExpanded = card.classList.contains('expanded') ? card : null;
+            
+            if (card.classList.contains('expanded')) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    </script>
+</body>
+</html>
