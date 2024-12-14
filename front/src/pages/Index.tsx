@@ -2,20 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Map, User, Award, Clock } from 'lucide-react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { badges, Badge } from '../common/Badge';
-// import { ethers } from 'ethers';
 import { 
   BrowserProvider, 
   Contract, 
   Interface,
   JsonRpcProvider,
   Provider 
-} from 'ethers'; 
+} from 'ethers';
+
+interface GymLeaderStatus {
+  isAvailable: boolean;
+  message: string;
+  walletAddress: string;
+}
 
 interface CustomLoginButtonProps {
   userInfo: any;
   onLoginSuccess: (userInfo: any) => void;
   onLogout: () => void;
 }
+
+const POLLING_INTERVAL = 60000; // 1 minute in milliseconds
 
 const ERC721_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
@@ -37,7 +44,6 @@ export async function checkBadgeOwnership(
         provider
       );
 
-      // Check if user has any tokens from this contract
       const balance = await contract.balanceOf(walletAddress);
       
       if (balance > 0n) {
@@ -47,7 +53,6 @@ export async function checkBadgeOwnership(
         console.log(`trainer doesn't have ${(badge.id)}`)
       }
     } catch (error) {
-      //maybe contractaddress is not valid ERC721
       console.error(`Error checking badge ${badge.id}:`, error);
     }
   }
@@ -136,9 +141,40 @@ interface MainContentProps {
 
 const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) => {
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
-  // const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set());
-  // const [obtainedBadges, setObtainedBadges] = useState<Set<number>>(new Set([1, 2, 3]));
   const { wallets } = useWallets();
+  const [availableGyms, setAvailableGyms] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    const checkGymLeaderStatus = async () => {
+      const newAvailableGyms = new Set<number>();
+      
+      for (let id = 1; id <= 8; id++) {
+        try {
+          const response = await fetch(
+            `https://lubiqflmuevfpkdceisf.supabase.co/functions/v1/gymleaderstatus?id=${id}`,
+            {
+              headers: {
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1YmlxZmxtdWV2ZnBrZGNlaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI5NTYwMDgsImV4cCI6MjA0ODUzMjAwOH0.L8BhzPs6T6ewoHDQ9mCPPbPIjcXlR4rl7WpRySK7m94'
+              }
+            }
+          );
+          const data: GymLeaderStatus = await response.json();
+          
+          if (data.isAvailable) {
+            newAvailableGyms.add(id);
+          }
+        } catch (error) {
+          console.error(`Error checking gym ${id} status:`, error);
+        }
+      }
+      
+      setAvailableGyms(newAvailableGyms);
+    };
+
+    checkGymLeaderStatus();
+    const intervalId = setInterval(checkGymLeaderStatus, POLLING_INTERVAL);
+    return () => clearInterval(intervalId);
+  }, []);
 
   const callApi = async () => {
     if (!userInfo || !wallets.length) return;
@@ -192,28 +228,30 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) =
       <div className="grid grid-cols-4 gap-2 bg-slate-800 rounded-lg p-4">
         {badges.map(badge => {
           const isObtained = obtainedBadges.has(badge.id);
-          // const BadgeIcon = BadgeComponents[badge.id];
+          const isAvailable = availableGyms.has(badge.id);
           return (
             <div
               key={badge.id}
               className={`
-               aspect-square relative cursor-pointer
-               ${selectedBadge?.id === badge.id ? 'ring-2 ring-yellow-400' : ''}
-             `}
+                aspect-square relative cursor-pointer
+                ${selectedBadge?.id === badge.id ? 'ring-2 ring-yellow-400' : ''}
+                ${isAvailable && !isObtained ? 'animate-pulse' : ''}
+              `}
               onClick={() => setSelectedBadge(badge)}
             >
               <div className={`
-               w-full h-full rounded-lg flex items-center justify-center p-3
-               ${isObtained ? badge.color : 'bg-slate-700'}
-               transition-colors duration-300 hover:opacity-90
-             `}>
+                w-full h-full rounded-lg flex items-center justify-center p-3
+                ${isObtained ? badge.color : 'bg-slate-700'}
+                ${isAvailable && !isObtained ? 'ring-2 ring-green-400' : ''}
+                transition-colors duration-300 hover:opacity-90
+              `}>
                 <badge.svg />
               </div>
               <div className={`
-               absolute -top-1 -right-1 w-3 h-3 rounded-full
-               ${isObtained ? 'bg-green-500' : 'bg-gray-600'}
-               border-2 border-slate-800
-             `} />
+                absolute -top-1 -right-1 w-3 h-3 rounded-full
+                ${isObtained ? 'bg-green-500' : isAvailable ? 'bg-yellow-500 animate-ping' : 'bg-gray-600'}
+                border-2 border-slate-800
+              `} />
             </div>
           );
         })}
@@ -224,12 +262,11 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) =
           <div className="text-white space-y-4">
             <div className="flex justify-center mb-6">
               <div className={`
-               w-24 h-24 rounded-full p-4
-               ${selectedBadge.color}
-               flex items-center justify-center
-               shadow-lg
-             `}>
-                {/* {React.createElement(BadgeComponents[selectedBadge.id])} */}
+                w-24 h-24 rounded-full p-4
+                ${selectedBadge.color}
+                flex items-center justify-center
+                shadow-lg
+              `}>
                 <selectedBadge.svg />
               </div>
             </div>
@@ -260,12 +297,12 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) =
                 onClick={() => handleGymVisit(selectedBadge.url)}
                 disabled={!userInfo}
                 className={`
-                 mt-4 w-full p-2 rounded-lg text-center
-                 ${userInfo
+                  mt-4 w-full p-2 rounded-lg text-center
+                  ${userInfo
                     ? 'bg-blue-600 hover:bg-blue-700'
                     : 'bg-gray-500 cursor-not-allowed'}
-                 text-white transition-colors duration-300
-               `}
+                  text-white transition-colors duration-300
+                `}
               >
                 {userInfo ? 'ジムに向かう' : 'Discord接続(右上)'}
               </button>
@@ -291,7 +328,6 @@ const Index: React.FC = () => {
     if (authenticated && user) {
       setUserInfo(user);
 
-      // ユーザー認証後にバッジの所持確認を実行
       const checkBadges = async () => {
         if (!wallets.length) return;
         
@@ -309,18 +345,15 @@ const Index: React.FC = () => {
             jsonRPC
           );
 
-
           setObtainedBadges(ownedBadges);
         } catch (error) {
           console.error('Failed to check badge ownership:', error);
         }
       };
 
-
       checkBadges();
     } else {
       setUserInfo(null);
-      // ユーザーがログアウトしたら obtainedBadges もリセット
       setObtainedBadges(new Set());
     }
   }, [authenticated, user, wallets]);
@@ -338,7 +371,7 @@ const Index: React.FC = () => {
             />
           </div>
           <div className="flex justify-between text-sm">
-            <span>獲得数: {/* obtainedBadges.size */}</span>
+            <span>獲得数: {obtainedBadges.size}</span>
             <span>総数: {badges.length}</span>
           </div>
         </div>
