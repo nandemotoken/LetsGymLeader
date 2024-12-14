@@ -1,3 +1,14 @@
+//@ts-ignore
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const supabaseClient = createClient(
+  //@ts-ignore
+  Deno.env.get('SUPABASE_URL') || '',
+  //@ts-ignore
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+);
+
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -74,6 +85,15 @@ Deno.serve(async (req) => {
 
       // Discord通知を送信
       await sendDiscordNotification(`新しい挑戦者がジムに来ました！\nアドレス: ${body.walletAddress}\n名前: ${body.discordUsername || 'Unknown'}`);
+
+      // データベースの値を確認
+      const { data, error } = await supabaseClient
+        .from('gym_leaders')
+        .select('*')
+        .eq('id', 1)
+        .single();
+      
+      console.log('Database response:', { data, error });
 
       return new Response(JSON.stringify({
         message: "Hello from Supabase!",
