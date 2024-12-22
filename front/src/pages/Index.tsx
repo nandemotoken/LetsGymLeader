@@ -289,9 +289,18 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) =
             </div>
 
             {obtainedBadges.has(selectedBadge.id) ? (
-              <div className="mt-4 p-2 rounded-lg text-center bg-green-600 text-white">
+              <button
+                onClick={() => handleGymVisit(selectedBadge.url)}
+                disabled={!userInfo}
+                className={`
+                  mt-4 w-full p-2 rounded-lg text-center
+                  bg-green-600 hover:bg-green-700
+                  text-white transition-colors duration-300
+                  ${!userInfo && 'opacity-50 cursor-not-allowed'}
+                `}
+              >
                 獲得済み
-              </div>
+              </button>
             ) : (
               <button
                 onClick={() => handleGymVisit(selectedBadge.url)}
