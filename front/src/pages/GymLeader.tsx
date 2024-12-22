@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { badges, Badge } from '../common/Badge';
+import { createWalletClient, custom, getContract } from 'viem'
 
 function GymLeader() {
   const [count, setCount] = useState(0)
