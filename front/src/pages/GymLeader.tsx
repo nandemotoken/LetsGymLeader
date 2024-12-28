@@ -1,15 +1,96 @@
 import React, { useState, useEffect } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { badges, Badge } from '../common/Badge';
-import { createWalletClient, custom, getContract } from 'viem'
+import { parseAbi, PublicClient, WalletClient, createPublicClient, createWalletClient, custom, getContract, http
+} from 'viem'
+import { optimism } from 'viem/chains'
+
+function useViemClients() {
+  const { wallets } = useWallets();
+  const [clients, setClients] = useState<{
+    walletClient: WalletClient | null;
+    //viem型定義のほうがおかしいかも
+    publicClient: any;
+  }>({
+    walletClient: null,
+    publicClient: null
+  });
+
+  useEffect(() => {
+    async function setupClients() {
+      const wallet = wallets[0];
+      if (!wallet) return;
+
+      try {
+        await wallet.switchChain(optimism.id);
+        const provider = await wallet.getEthereumProvider();
+
+        const walletClient = createWalletClient({
+          chain: optimism,
+          transport: custom(provider),
+        });
+
+        const publicClient = createPublicClient({
+          chain: optimism,
+          transport: http()
+        });
+
+        setClients({ walletClient, publicClient });
+      } catch (error) {
+        console.error('Failed to setup viem clients:', error);
+        setClients({ walletClient: null, publicClient: null });
+      }
+    }
+
+    setupClients();
+  }, [wallets]);
+
+  return clients;
+}
+
 
 function GymLeader() {
-  const [count, setCount] = useState(0)
   const { login, logout, authenticated, user } = usePrivy();
-  const { wallets } = useWallets();
   const [address, setAddress] = useState<string>('');
+  const { walletClient, publicClient: publicClient } = useViemClients();
+  const { wallets } = useWallets();
+  const [contractName, setContractName] = useState<string>('');
 
-  // ウォレットの接続とアドレス取得
+
+  useEffect(() => {
+    async function fetchContractData() {
+      if (!walletClient || !publicClient) {
+        console.log("no client")
+        return
+      };
+
+      try {
+        const name = await publicClient.readContract({
+          address: '0x3bC4930D0192439De245bC2C94dE04c768306b27',
+          abi:parseAbi( ["function sendBadge(address _trainer) public", "function name() public view returns (string)"]),
+          functionName: 'name'
+        })
+
+        console.log(name)
+
+        // const contract = getContract({
+        //   address: '0x3bC4930D0192439De245bC2C94dE04c768306b27',
+        //   abi:parseAbi( ["function sendBadge(address _trainer) public", "function name() public view returns (string)"]),
+        //   client: { public: publicClient, wallet: walletClient }
+        // });
+
+        // setContractName(name);
+        // const name = await contract.read.name();
+        // console.log(name);
+      } catch (error) {
+        console.error('Contract read error:', error);
+      }
+    }
+
+    fetchContractData();
+  }, [walletClient, publicClient]);
+
+
+  // privyの標準機能を使ったユーザ情報の取得(コントラクト接続なし)
   const connectWallet = async () => {
     try {
       if (wallets && wallets.length > 0) {
