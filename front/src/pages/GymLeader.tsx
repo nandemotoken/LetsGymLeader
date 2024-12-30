@@ -72,15 +72,21 @@ function GymLeader() {
 
         console.log(name)
 
-        // const contract = getContract({
-        //   address: '0x3bC4930D0192439De245bC2C94dE04c768306b27',
-        //   abi:parseAbi( ["function sendBadge(address _trainer) public", "function name() public view returns (string)"]),
-        //   client: { public: publicClient, wallet: walletClient }
-        // });
+        const accounts = await walletClient.getAddresses()
+        const account = accounts[0]
+        console.dir(`account:${account}`)
+        
 
-        // setContractName(name);
-        // const name = await contract.read.name();
-        // console.log(name);
+        await walletClient.writeContract({
+          address: '0x3bC4930D0192439De245bC2C94dE04c768306b27',
+          abi:parseAbi( ["function sendBadge(address _trainer) public", "function name() public view returns (string)"]),
+          functionName: 'sendBadge',
+          args: ["0x5c9C96E836F8EF09Eb69D1C320Ceb1bbea891017"],
+          account:account,
+          chain: optimism
+        })
+
+          
       } catch (error) {
         console.error('Contract read error:', error);
       }
@@ -95,7 +101,7 @@ function GymLeader() {
     try {
       if (wallets && wallets.length > 0) {
         const wallet = wallets[0];
-        await wallet.switchChain(11155111); // Sepoliaテストネット
+        await wallet.switchChain(optimism.id);
         const provider = await wallet.getEthersProvider();
         const signer = provider.getSigner();
         const address = await signer.getAddress();
