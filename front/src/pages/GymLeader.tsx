@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import {
   parseAbi, PublicClient, WalletClient, createPublicClient, createWalletClient, custom, getContract, http
-} from 'viem'
+,isAddress } from 'viem'
 import { optimism } from 'viem/chains'
+import { badges, Badge  } from "./../common/Badge"
 
 function useViemClients() {
   const { wallets } = useWallets();
@@ -54,26 +55,42 @@ function GymLeader() {
   const [address, setAddress] = useState<string>('');
   const { walletClient, publicClient: publicClient } = useViemClients();
   const { wallets } = useWallets();
-  const [text, setText] = useState('')
+  const [walletAddress, setWalletAddress] = useState('')
 
   const handleSubmit = async () => {
-    console.log(text)
+    console.log(walletAddress)
 
     if (!walletClient || !publicClient) {
       console.log("no client")
       return
     };
 
+    if (!isAddress(walletAddress)) {
+      throw("invalid address")
+    }
+
     const accounts = await walletClient.getAddresses()
     const account = accounts[0]
     console.dir(`account:${account}`)
 
+    const badge = badges.find(badge => 
+      badge.GymLeaderAddress.includes(account)
+    )
+
+    const contractAddress = badge?.contractAddress;
+    console.log(`contractAddress:${contractAddress}`)
+
+    if (!contractAddress || !isAddress(contractAddress)) {
+      throw("invalid gymLeader")      
+    }
+
+    console.log(`trainer address ${walletAddress}`)
 
     await walletClient.writeContract({
-      address: '0x3bC4930D0192439De245bC2C94dE04c768306b27',
+      address: contractAddress,
       abi: parseAbi(["function sendBadge(address _trainer) public", "function name() public view returns (string)"]),
       functionName: 'sendBadge',
-      args: ["0x5c9C96E836F8EF09Eb69D1C320Ceb1bbea891017"],
+      args: [walletAddress],
       account: account,
       chain: optimism
     })
@@ -142,8 +159,8 @@ function GymLeader() {
 
           <div>
             <input type="text"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
               placeholder="trainer address (check discord)"
             />
             <button onClick={handleSubmit}>
