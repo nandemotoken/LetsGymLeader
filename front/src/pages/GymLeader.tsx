@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { parseAbi, PublicClient, WalletClient, createPublicClient, createWalletClient, custom, getContract, http
+import {
+  parseAbi, PublicClient, WalletClient, createPublicClient, createWalletClient, custom, getContract, http
 } from 'viem'
 import { optimism } from 'viem/chains'
 
@@ -53,7 +54,31 @@ function GymLeader() {
   const [address, setAddress] = useState<string>('');
   const { walletClient, publicClient: publicClient } = useViemClients();
   const { wallets } = useWallets();
-  const [contractName, setContractName] = useState<string>('');
+  const [text, setText] = useState('')
+
+  const handleSubmit = async () => {
+    console.log(text)
+
+    if (!walletClient || !publicClient) {
+      console.log("no client")
+      return
+    };
+
+    const accounts = await walletClient.getAddresses()
+    const account = accounts[0]
+    console.dir(`account:${account}`)
+
+
+    await walletClient.writeContract({
+      address: '0x3bC4930D0192439De245bC2C94dE04c768306b27',
+      abi: parseAbi(["function sendBadge(address _trainer) public", "function name() public view returns (string)"]),
+      functionName: 'sendBadge',
+      args: ["0x5c9C96E836F8EF09Eb69D1C320Ceb1bbea891017"],
+      account: account,
+      chain: optimism
+    })
+
+  }
 
 
   useEffect(() => {
@@ -66,27 +91,14 @@ function GymLeader() {
       try {
         const name = await publicClient.readContract({
           address: '0x3bC4930D0192439De245bC2C94dE04c768306b27',
-          abi:parseAbi( ["function sendBadge(address _trainer) public", "function name() public view returns (string)"]),
+          abi: parseAbi(["function sendBadge(address _trainer) public", "function name() public view returns (string)"]),
           functionName: 'name'
         })
 
         console.log(name)
 
-        const accounts = await walletClient.getAddresses()
-        const account = accounts[0]
-        console.dir(`account:${account}`)
-        
 
-        await walletClient.writeContract({
-          address: '0x3bC4930D0192439De245bC2C94dE04c768306b27',
-          abi:parseAbi( ["function sendBadge(address _trainer) public", "function name() public view returns (string)"]),
-          functionName: 'sendBadge',
-          args: ["0x5c9C96E836F8EF09Eb69D1C320Ceb1bbea891017"],
-          account:account,
-          chain: optimism
-        })
 
-          
       } catch (error) {
         console.error('Contract read error:', error);
       }
@@ -127,6 +139,18 @@ function GymLeader() {
       {authenticated ? (
         <div>
           {address && <p>Wallet Address: {address}</p>}
+
+          <div>
+            <input type="text"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="trainer address (check discord)"
+            />
+            <button onClick={handleSubmit}>
+              バッジ発行
+            </button>
+          </div>
+
           <button onClick={logout}>
             Logout
           </button>
