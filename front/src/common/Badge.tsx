@@ -22,7 +22,7 @@ export const badges: Badge[] = [
     leader: 'なんでもトークン', 
     url: 'https://app.gather.town/app/7IQBpxNhAIni5UfR/TokenGym',
     color: 'bg-purple-600',
-    hours: '平日 22:00-22:30',
+    hours: '平日 22:30-23:00',
     contractAddress: '0x3bC4930D0192439De245bC2C94dE04c768306b27',
     GymLeaderAddress: ['0x290c78BB40d532671ACbccF0988deCe12bff3CB3'],
     svg:() => (
