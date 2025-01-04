@@ -7,7 +7,7 @@ const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/gymleader" element={<GymLeader />} />
+      <Route path="/gymleader.html" element={<GymLeader />} />
       <Route 
         path="/howtouse" 
         element={<Navigate to="/howtouse/index.html" replace />} 
