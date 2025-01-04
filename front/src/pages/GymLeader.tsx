@@ -6,6 +6,12 @@ import {
 import { optimism } from 'viem/chains'
 import { badges, Badge  } from "./../common/Badge"
 
+interface GymLeaderStatus {
+  isAvailable: boolean;
+  message: string;
+  walletAddress?: string;
+}
+
 function useViemClients() {
   const { wallets } = useWallets();
   const [clients, setClients] = useState<{
@@ -55,7 +61,8 @@ function GymLeader() {
   const [address, setAddress] = useState<string>('');
   const { walletClient, publicClient: publicClient } = useViemClients();
   const { wallets } = useWallets();
-  const [walletAddress, setWalletAddress] = useState('')
+  const [walletAddress, setWalletAddress] = useState('');
+  const [isAvailable, setIsAvailable] = useState(false);
 
   const handleSubmit = async () => {
     console.log(walletAddress)
@@ -149,6 +156,79 @@ function GymLeader() {
     }
   }, [authenticated, wallets]);
 
+  const toggleAvailability = async () => {
+    try {
+      const accounts = await walletClient?.getAddresses();
+      const account = accounts?.[0];
+      
+      if (!account) return;
+      
+      const badge = badges.find(badge => 
+        badge.GymLeaderAddress.includes(account)
+      );
+      
+      if (!badge) {
+        console.error("Not a gym leader");
+        return;
+      }
+
+      const response = await fetch(
+        'https://lubiqflmuevfpkdceisf.supabase.co/functions/v1/gymleaderstatus',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1YmlxZmxtdWV2ZnBrZGNlaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI5NTYwMDgsImV4cCI6MjA0ODUzMjAwOH0.L8BhzPs6T6ewoHDQ9mCPPbPIjcXlR4rl7WpRySK7m94'
+          },
+          body: JSON.stringify({
+            gymLeaderId: badge.id,
+            isAvailable: !isAvailable
+          })
+        }
+      );
+
+      const data: GymLeaderStatus = await response.json();
+      setIsAvailable(data.isAvailable);
+      
+    } catch (error) {
+      console.error('Error toggling availability:', error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const accounts = await walletClient?.getAddresses();
+        const account = accounts?.[0];
+        
+        if (!account) return;
+        
+        const badge = badges.find(badge => 
+          badge.GymLeaderAddress.includes(account)
+        );
+        
+        if (!badge) return;
+
+        const response = await fetch(
+          `https://lubiqflmuevfpkdceisf.supabase.co/functions/v1/gymleaderstatus?id=${badge.id}`,
+          {
+            headers: {
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1YmlxZmxtdWV2ZnBrZGNlaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI5NTYwMDgsImV4cCI6MjA0ODUzMjAwOH0.L8BhzPs6T6ewoHDQ9mCPPbPIjcXlR4rl7WpRySK7m94'
+            }
+          }
+        );
+        const data: GymLeaderStatus = await response.json();
+        setIsAvailable(data.isAvailable);
+      } catch (error) {
+        console.error('Error fetching status:', error);
+      }
+    };
+
+    if (walletClient) {
+      fetchStatus();
+    }
+  }, [walletClient]);
+
   return (
     <>
       <h1>ジムリーダー専用画面</h1>
@@ -156,6 +236,17 @@ function GymLeader() {
       {authenticated ? (
         <div>
           {address && <p>Wallet Address: {address}</p>}
+
+          <button
+            onClick={toggleAvailability}
+            className={`
+              mb-4 px-4 py-2 rounded
+              ${isAvailable ? 'bg-green-500' : 'bg-red-500'}
+              text-white font-bold
+            `}
+          >
+            {isAvailable ? '対戦可能' : '対戦不可'}
+          </button>
 
           <div>
             <input type="text"

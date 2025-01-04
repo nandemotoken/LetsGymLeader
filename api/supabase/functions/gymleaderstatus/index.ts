@@ -16,6 +16,7 @@ const corsHeaders = {
 
 interface RequestBody {
   gymLeaderId?: number;
+  isAvailable: boolean;
 }
 
 interface GymLeaderStatus {
@@ -30,6 +31,26 @@ async function checkGymLeaderStatus(gymLeaderId: number): Promise<GymLeaderStatu
     .from('gym_leaders')
     .select('*')
     .eq('id', gymLeaderId)
+    .single();
+  
+  if (error) throw error;
+  
+  return {
+    isAvailable: data.is_available,
+    message: data.is_available ? 
+      "ジムリーダーは現在対戦可能です！" : 
+      "ジムリーダーは現在対戦できません。",
+    walletAddress: data.wallet_address
+  };
+}
+
+// setGymLeaderStatus関数を追加
+async function setGymLeaderStatus(gymLeaderId: number, isAvailable: boolean): Promise<GymLeaderStatus> {
+  const { data, error } = await supabaseClient
+    .from('gym_leaders')
+    .update({ is_available: isAvailable })
+    .eq('id', gymLeaderId)
+    .select()
     .single();
   
   if (error) throw error;
@@ -58,6 +79,22 @@ Deno.serve(async (req) => {
       const status = await checkGymLeaderStatus(gymLeaderId);
       console.log('Gym Leader Status:', status);
 
+      return new Response(JSON.stringify(status), {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      });
+    } else if (req.method === 'POST') {
+      const body: RequestBody = await req.json();
+      const gymLeaderId = body.gymLeaderId || 1;
+      
+      if (typeof body.isAvailable !== 'boolean') {
+        throw new Error('isAvailable must be a boolean value');
+      }
+
+      const status = await setGymLeaderStatus(gymLeaderId, body.isAvailable);
+      
       return new Response(JSON.stringify(status), {
         headers: {
           ...corsHeaders,
