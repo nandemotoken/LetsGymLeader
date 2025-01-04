@@ -263,70 +263,87 @@ function GymLeader() {
 
         {authenticated ? (
           <div className="space-y-6">
-            {/* ジムリーダー情報の表示 */}
-            {gymLeaderInfo && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <h2 className="text-lg font-bold text-gray-800 mb-1">
-                      {gymLeaderInfo.leader}
-                    </h2>
-                    <p className="text-sm text-gray-600">
-                      {gymLeaderInfo.gym} / {gymLeaderInfo.name}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs text-gray-500">GYM_ID:</span>
-                    <span className="ml-1 font-mono text-sm text-gray-700">{gymLeaderInfo.id}</span>
+            {gymLeaderInfo ? (
+              <>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <h2 className="text-lg font-bold text-gray-800 mb-1">
+                        {gymLeaderInfo.leader}
+                      </h2>
+                      <p className="text-sm text-gray-600">
+                        {gymLeaderInfo.gym} / {gymLeaderInfo.name}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs text-gray-500">GYM_ID:</span>
+                      <span className="ml-1 font-mono text-sm text-gray-700">{gymLeaderInfo.id}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* 既存のウォレットアドレス表示 */}
-            {address && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-700">
-                  <span className="font-semibold">ウォレットアドレス:</span> {address}
+                {/* 既存のウォレットアドレス表示 */}
+                {address && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-gray-700">
+                      <span className="font-semibold">ウォレットアドレス:</span> {address}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-center">
+                  <button
+                    onClick={toggleAvailability}
+                    className={`
+                      px-6 py-3 rounded-lg font-bold text-white
+                      transition-colors duration-200
+                      ${isAvailable 
+                        ? 'bg-green-500 hover:bg-green-600' 
+                        : 'bg-red-500 hover:bg-red-600'}
+                    `}
+                  >
+                    {isAvailable ? '対戦可能' : '対戦不可'}
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <h2 className="text-xl font-semibold text-gray-700 mb-4">
+                    バッジ発行
+                  </h2>
+                  <div className="flex gap-4">
+                    <input
+                      type="text"
+                      value={walletAddress}
+                      onChange={(e) => setWalletAddress(e.target.value)}
+                      placeholder="トレーナーのアドレスを入力 (Discordで確認)"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      onClick={handleSubmit}
+                      className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                    >
+                      バッジを発行
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center p-6 bg-yellow-50 rounded-lg">
+                <p className="text-gray-700 mb-4">
+                  このDiscord IDはジムリーダーではありません。<br />
+                  ジムリーダー登録/復活/システムサポートが必要な場合は、
+                  <a 
+                    href="https://x.com/GymBadgeNFT" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    x.com/GymBadgeNFT
+                  </a>
+                  へ連絡してください。
                 </p>
               </div>
             )}
-
-            <div className="flex justify-center">
-              <button
-                onClick={toggleAvailability}
-                className={`
-                  px-6 py-3 rounded-lg font-bold text-white
-                  transition-colors duration-200
-                  ${isAvailable 
-                    ? 'bg-green-500 hover:bg-green-600' 
-                    : 'bg-red-500 hover:bg-red-600'}
-                `}
-              >
-                {isAvailable ? '対戦可能' : '対戦不可'}
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-700 mb-4">
-                バッジ発行
-              </h2>
-              <div className="flex gap-4">
-                <input
-                  type="text"
-                  value={walletAddress}
-                  onChange={(e) => setWalletAddress(e.target.value)}
-                  placeholder="トレーナーのアドレスを入力 (Discordで確認)"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button
-                  onClick={handleSubmit}
-                  className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-200"
-                >
-                  バッジを発行
-                </button>
-              </div>
-            </div>
 
             <div className="flex justify-center">
               <button
