@@ -63,6 +63,7 @@ function GymLeader() {
   const { wallets } = useWallets();
   const [walletAddress, setWalletAddress] = useState('');
   const [isAvailable, setIsAvailable] = useState(false);
+  const [gymLeaderInfo, setGymLeaderInfo] = useState<Badge | null>(null);
 
   const handleSubmit = async () => {
     console.log(walletAddress)
@@ -229,6 +230,30 @@ function GymLeader() {
     }
   }, [walletClient]);
 
+  // ジムリーダー情報を取得する関数
+  useEffect(() => {
+    const fetchGymLeaderInfo = async () => {
+      if (!walletClient) return;
+      
+      try {
+        const accounts = await walletClient.getAddresses();
+        const account = accounts[0];
+        
+        const badge = badges.find(badge => 
+          badge.GymLeaderAddress.includes(account)
+        );
+        
+        if (badge) {
+          setGymLeaderInfo(badge);
+        }
+      } catch (error) {
+        console.error('Error fetching gym leader info:', error);
+      }
+    };
+
+    fetchGymLeaderInfo();
+  }, [walletClient]);
+
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-6">
@@ -238,6 +263,27 @@ function GymLeader() {
 
         {authenticated ? (
           <div className="space-y-6">
+            {/* ジムリーダー情報の表示 */}
+            {gymLeaderInfo && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <h2 className="text-lg font-bold text-gray-800 mb-1">
+                      {gymLeaderInfo.leader}
+                    </h2>
+                    <p className="text-sm text-gray-600">
+                      {gymLeaderInfo.gym} / {gymLeaderInfo.name}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-gray-500">GYM_ID:</span>
+                    <span className="ml-1 font-mono text-sm text-gray-700">{gymLeaderInfo.id}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 既存のウォレットアドレス表示 */}
             {address && (
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-gray-700">
