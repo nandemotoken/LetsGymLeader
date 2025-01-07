@@ -202,7 +202,8 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) =
           },
           body: JSON.stringify({
             walletAddress: walletAddress,
-            discordUsername: discordUsername
+            discordUsername: discordUsername,
+            gymNumber: selectedBadge?.id
           })
         }
       );

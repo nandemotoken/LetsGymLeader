@@ -18,11 +18,12 @@ const corsHeaders = {
 interface RequestBody {
   walletAddress?: string;
   discordUsername?: string;
+  gymNumber?: number;
 }
 // Discordにメッセージを送信する関数
-async function sendDiscordNotification(message: string) {
+async function sendDiscordNotification(message: string, gymNumber: number) {
 
-  const i = 1;
+  const i = gymNumber;
   //supabaseにDISCORD_WEBHOOK_URL_GYM1~GYM8までセット済
   // @ts-ignore
   // const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL'); // Discord webhook URLを環境変数から取得
@@ -71,7 +72,7 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get('TEST_SECRET')
 
     if (req.method === 'GET') {
-      await sendDiscordNotification('GET request received!');
+      // await sendDiscordNotification('GET request received!');
       return new Response(JSON.stringify({
         message: "Hello from Supabase!",
         key: apiKey
@@ -90,13 +91,17 @@ Deno.serve(async (req) => {
         throw new Error('Wallet address is required');
       }
 
+      if (!body.gymNumber) {
+        throw new Error('Gym number is required');
+      }
+      
       const addressRegex = /^0x[a-fA-F0-9]{40}$/;
       if (!addressRegex.test(body.walletAddress)) {
         throw new Error('Invalid wallet address format');
       }
 
       // Discord通知を送信
-      await sendDiscordNotification(`新しい挑戦者がジムに来ました！\nアドレス: ${body.walletAddress}\n名前: ${body.discordUsername || 'Unknown'}`);
+      await sendDiscordNotification(`新しい挑戦者がジムに来ました！\nアドレス: ${body.walletAddress}\n名前: ${body.discordUsername || 'Unknown'}`, body.gymNumber);
 
       // データベースの値を確認
       const { data, error } = await supabaseClient
@@ -125,7 +130,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     // エラーの場合もDiscordに通知
     try {
-      await sendDiscordNotification(`エラーが発生しました: ${error.message}`);
+      // await sendDiscordNotification(`エラーが発生しました: ${error.message}`);
     } catch (discordError) {
       console.error('Failed to send error notification to Discord:', discordError);
     }
