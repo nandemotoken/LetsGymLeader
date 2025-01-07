@@ -78,9 +78,16 @@ export const badges: Badge[] = [
     GymLeaderAddress: [''],
     svg:() => (
       <svg viewBox="0 0 24 24" className="w-full h-full">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor" />
-        <path d="M12 6l3.09 6.31L22 13.5l-5 4.87 1.18 6.88L12 21.5l-6.18 3.75L7 18.37l-5-4.87 6.91-1.19L12 6z" 
-              fill="none" stroke="currentColor" strokeWidth="1" />
+        <path 
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" 
+          fill="currentColor" 
+        />
+        <path 
+          d="M12 5.5l2.2 4.5 4.8.7-3.5 3.4.8 4.9-4.3-2.3-4.3 2.3.8-4.9L5 10.7l4.8-.7z" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="1"
+        />
       </svg>
     )
   },
