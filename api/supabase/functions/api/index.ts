@@ -26,15 +26,6 @@ async function sendDiscordNotification(message: string, gymNumber: number) {
   const i = gymNumber;
   //supabaseにDISCORD_WEBHOOK_URL_GYM1~GYM8までセット済
   // @ts-ignore
-  // const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL'); // Discord webhook URLを環境変数から取得
-  // const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL_GYM1'); // Discord webhook URLを環境変数から取得
-  // const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL_GYM2'); // Discord webhook URLを環境変数から取得
-  // const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL_GYM3'); // Discord webhook URLを環境変数から取得
-  // const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL_GYM4'); // Discord webhook URLを環境変数から取得
-  // const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL_GYM5'); // Discord webhook URLを環境変数から取得
-  // const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL_GYM6'); // Discord webhook URLを環境変数から取得
-  // const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL_GYM7'); // Discord webhook URLを環境変数から取得
-  // const webhookUrl = Deno.env.get('DISCORD_WEBHOOK_URL_GYM8'); // Discord webhook URLを環境変数から取得
   const webhookUrl = Deno.env.get(`DISCORD_WEBHOOK_URL_GYM${i}`); // Discord webhook URLを環境変数から取得
   
   if (!webhookUrl) {
