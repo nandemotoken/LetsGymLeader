@@ -9,11 +9,12 @@ import {
   JsonRpcProvider,
   Provider 
 } from 'ethers';
+import { Link } from 'react-router-dom';
 
 interface GymLeaderStatus {
   isAvailable: boolean;
   message: string;
-  walletAddress: string;
+  walletAddress?: string;
 }
 
 interface CustomLoginButtonProps {
@@ -143,6 +144,7 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) =
   const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
   const { wallets } = useWallets();
   const [availableGyms, setAvailableGyms] = useState<Set<number>>(new Set());
+  const [gymStatus, setGymStatus] = useState<GymLeaderStatus | null>(null);
 
   useEffect(() => {
     const checkGymLeaderStatus = async () => {
@@ -175,6 +177,29 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) =
     const intervalId = setInterval(checkGymLeaderStatus, POLLING_INTERVAL);
     return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    const fetchGymStatus = async () => {
+      if (!selectedBadge) return;
+
+      try {
+        const response = await fetch(
+          `https://lubiqflmuevfpkdceisf.supabase.co/functions/v1/gymleaderstatus?id=${selectedBadge.id}`,
+          {
+            headers: {
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1YmlxZmxtdWV2ZnBrZGNlaXNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI5NTYwMDgsImV4cCI6MjA0ODUzMjAwOH0.L8BhzPs6T6ewoHDQ9mCPPbPIjcXlR4rl7WpRySK7m94'
+            }
+          }
+        );
+        const data = await response.json();
+        setGymStatus(data);
+      } catch (error) {
+        console.error('Error fetching gym status:', error);
+      }
+    };
+
+    fetchGymStatus();
+  }, [selectedBadge]);
 
   const callApi = async () => {
     if (!userInfo || !wallets.length) return;
@@ -303,19 +328,25 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) =
                 獲得済み
               </button>
             ) : (
-              <button
-                onClick={() => handleGymVisit(selectedBadge.url)}
-                disabled={!userInfo}
-                className={`
-                  mt-4 w-full p-2 rounded-lg text-center
-                  ${userInfo
-                    ? 'bg-blue-600 hover:bg-blue-700'
-                    : 'bg-gray-500 cursor-not-allowed'}
-                  text-white transition-colors duration-300
-                `}
-              >
-                {userInfo ? 'ジムに向かう' : 'Discord接続(右上)'}
-              </button>
+              userInfo ? (
+                <Link
+                  to={gymStatus?.isAvailable ? "/battle" : "https://discord.gg/XZS58vfHc9"}
+                  target={gymStatus?.isAvailable ? undefined : "_blank"}
+                  rel={gymStatus?.isAvailable ? undefined : "noopener noreferrer"}
+                  className="mt-4 w-full p-2 rounded-lg text-center inline-block
+                    bg-blue-600 hover:bg-blue-700
+                    text-white transition-colors duration-300"
+                >
+                  {gymStatus?.isAvailable ? 'ジムに向かう' : 'ジムからのお知らせを見る'}
+                </Link>
+              ) : (
+                <div className="mt-4 w-full p-2 rounded-lg text-center
+                  bg-gray-500 cursor-not-allowed
+                  text-white"
+                >
+                  Discord接続(右上)
+                </div>
+              )
             )}
           </div>
         ) : (
