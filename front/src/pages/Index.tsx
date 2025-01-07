@@ -333,9 +333,13 @@ const MainContent: React.FC<MainContentProps> = ({ userInfo, obtainedBadges }) =
                   to={gymStatus?.isAvailable ? "/battle" : "https://discord.gg/XZS58vfHc9"}
                   target={gymStatus?.isAvailable ? undefined : "_blank"}
                   rel={gymStatus?.isAvailable ? undefined : "noopener noreferrer"}
-                  className="mt-4 w-full p-2 rounded-lg text-center inline-block
-                    bg-blue-600 hover:bg-blue-700
-                    text-white transition-colors duration-300"
+                  className={`
+                    mt-4 w-full p-2 rounded-lg text-center inline-block
+                    ${gymStatus?.isAvailable 
+                      ? 'bg-blue-600 hover:bg-blue-700' 
+                      : 'bg-red-500 hover:bg-red-600'}
+                    text-white transition-colors duration-300
+                  `}
                 >
                   {gymStatus?.isAvailable ? 'ジムに向かう' : 'ジムからのお知らせを見る'}
                 </Link>
