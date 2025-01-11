@@ -10,6 +10,8 @@ interface GymLeaderStatus {
   isAvailable: boolean;
   message: string;
   walletAddress?: string;
+  battleMessage?: string;
+  imageUrl?: string;
 }
 
 function useViemClients() {
@@ -64,6 +66,8 @@ function GymLeader() {
   const [walletAddress, setWalletAddress] = useState('');
   const [isAvailable, setIsAvailable] = useState(false);
   const [gymLeaderInfo, setGymLeaderInfo] = useState<Badge | null>(null);
+  const [battleMessage, setBattleMessage] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   const handleSubmit = async () => {
     console.log(walletAddress)
@@ -183,7 +187,9 @@ function GymLeader() {
           },
           body: JSON.stringify({
             gymLeaderId: badge.id,
-            isAvailable: !isAvailable
+            isAvailable: !isAvailable,
+            battleMessage: battleMessage,
+            imageUrl: imageUrl
           })
         }
       );
@@ -304,12 +310,16 @@ function GymLeader() {
                   <div className="space-y-3">
                     <input
                       type="text"
+                      value={battleMessage}
+                      onChange={(e) => setBattleMessage(e.target.value)}
                       placeholder="対戦メッセージ"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <div className="flex gap-2">
                       <input
                         type="text"
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
                         placeholder="画像URL"
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />

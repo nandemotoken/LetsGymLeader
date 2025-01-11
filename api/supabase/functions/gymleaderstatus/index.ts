@@ -17,6 +17,8 @@ const corsHeaders = {
 interface RequestBody {
   gymLeaderId?: number;
   isAvailable: boolean;
+  battleMessage: string;
+  imageUrl: string;
 }
 
 interface GymLeaderStatus {
@@ -45,17 +47,20 @@ async function checkGymLeaderStatus(gymLeaderId: number): Promise<GymLeaderStatu
 }
 
 // setGymLeaderStatus関数を追加
-async function setGymLeaderStatus(gymLeaderId: number, isAvailable: boolean): Promise<GymLeaderStatus> {
+async function setGymLeaderStatus(gymLeaderId: number, isAvailable: boolean, battleMessage: string, imageUrl: string): Promise<GymLeaderStatus> {
   const i = gymLeaderId;
 
+  console.log(gymLeaderId, isAvailable, battleMessage, imageUrl);
+  
   //@ts-ignore
   const webhookUrl = Deno.env.get(`DISCORD_ANNOUNCE_URL_GYM${i}`);
 
   // Discord通知の送信
   if (webhookUrl) {
-    const message = isAvailable
-      ? `🟢 ジムリーダー${i}が対戦可能になりました！`
-      : `🔴 ジムリーダー${i}が対戦不可になりました。`;
+    const discordMessage = battleMessage ? battleMessage :
+      isAvailable
+      ? `🟢 ジムリーダー${i}が対戦可能になりました！ ${battleMessage}`
+      : `🔴 ジムリーダー${i}が対戦不可になりました。 ${battleMessage}`;
 
     try {
       await fetch(webhookUrl, {
@@ -64,11 +69,31 @@ async function setGymLeaderStatus(gymLeaderId: number, isAvailable: boolean): Pr
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          content: message,
+          content: discordMessage,
         }),
       });
     } catch (error) {
       console.error('Discord通知の送信に失敗しました:', error);
+    }
+    
+    //1行で2秒待つ
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    //画像を送信(あれば)
+    if ( imageUrl && imageUrl.startsWith('https://') ) {
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: imageUrl,
+          }),
+        });
+      } catch (error) {
+        console.error('Discord通知の送信に失敗しました:', error);
+      }
     }
   }
 
@@ -114,12 +139,14 @@ Deno.serve(async (req) => {
     } else if (req.method === 'POST') {
       const body: RequestBody = await req.json();
       const gymLeaderId = body.gymLeaderId || 1;
+      const battleMessage = body.battleMessage || '';
+      const imageUrl = body.imageUrl || '';
       
       if (typeof body.isAvailable !== 'boolean') {
         throw new Error('isAvailable must be a boolean value');
       }
 
-      const status = await setGymLeaderStatus(gymLeaderId, body.isAvailable);
+      const status = await setGymLeaderStatus(gymLeaderId, body.isAvailable, battleMessage, imageUrl);
       
       return new Response(JSON.stringify(status), {
         headers: {
