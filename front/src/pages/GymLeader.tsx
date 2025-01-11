@@ -282,30 +282,48 @@ function GymLeader() {
                   </div>
                 </div>
 
-                {/* 既存のウォレットアドレス表示 */}
+                {/* ウォレットアドレスとステータス表示 */}
                 {address && (
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <p className="text-gray-700">
                       <span className="font-semibold">ウォレットアドレス:</span> {address}
                     </p>
+                    <p className="text-gray-700 mt-2">
+                      <span className="font-semibold">ステータス:</span>
+                      <span className={`ml-2 px-3 py-1 rounded-full text-white ${
+                        isAvailable ? 'bg-green-500' : 'bg-red-500'
+                      }`}>
+                        {isAvailable ? '対戦可能' : '対戦不可'}
+                      </span>
+                    </p>
                   </div>
                 )}
 
-                <div className="flex justify-center">
-                  <button
-                    onClick={toggleAvailability}
-                    className={`
-                      px-6 py-3 rounded-lg font-bold text-white
-                      transition-colors duration-200
-                      ${isAvailable 
-                        ? 'bg-green-500 hover:bg-green-600' 
-                        : 'bg-red-500 hover:bg-red-600'}
-                    `}
-                  >
-                    {isAvailable ? '対戦可能' : '対戦不可'}
-                  </button>
+                {/* メッセージと画像URL入力 */}
+                <div className="space-y-4 mb-8">
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      placeholder="対戦メッセージ"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="画像URL"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <button 
+                        onClick={toggleAvailability}
+                        className="px-4 py-2 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
+                      >
+                        更新
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
+                {/* バッジ発行（既存のまま） */}
                 <div className="space-y-4">
                   <h2 className="text-xl font-semibold text-gray-700 mb-4">
                     バッジ発行
