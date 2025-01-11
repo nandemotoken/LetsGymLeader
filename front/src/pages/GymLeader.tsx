@@ -68,6 +68,21 @@ function GymLeader() {
   const [gymLeaderInfo, setGymLeaderInfo] = useState<Badge | null>(null);
   const [battleMessage, setBattleMessage] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageUrlHistory, setImageUrlHistory] = useState<string[]>(() => {
+    const saved = localStorage.getItem('imageUrlHistory');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem('imageUrlHistory');
+    if (saved) {
+      setImageUrlHistory(JSON.parse(saved));
+    }
+  }, []);
+
+  const handleImageUrlUpdate = (url: string) => {
+    setImageUrl(url);
+  };
 
   const handleSubmit = async () => {
     console.log(walletAddress)
@@ -175,6 +190,12 @@ function GymLeader() {
       if (!badge) {
         console.error("Not a gym leader");
         return;
+      }
+
+      if (imageUrl && !imageUrlHistory.includes(imageUrl)) {
+        const newHistory = Array.from(new Set([imageUrl, ...imageUrlHistory])).slice(0, 5);
+        setImageUrlHistory(newHistory);
+        localStorage.setItem('imageUrlHistory', JSON.stringify(newHistory));
       }
 
       const response = await fetch(
@@ -299,7 +320,7 @@ function GymLeader() {
                       <span className={`ml-2 px-3 py-1 rounded-full text-white ${
                         isAvailable ? 'bg-green-500' : 'bg-red-500'
                       }`}>
-                        {isAvailable ? '対戦可能' : '対戦不可'}
+                        {isAvailable ? '現在対戦可' : '現在対戦不可'}
                       </span>
                     </p>
                   </div>
@@ -316,13 +337,35 @@ function GymLeader() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        placeholder="画像URL"
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
+                      <div className="flex-1 relative">
+                        <input
+                          type="text"
+                          value={imageUrl}
+                          onChange={(e) => handleImageUrlUpdate(e.target.value)}
+                          list="imageUrlList"
+                          placeholder="画像URL"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        {imageUrl && (
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                            <img 
+                              src={imageUrl} 
+                              alt="プレビュー"
+                              className="h-6 w-6 object-cover rounded"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://placehold.co/24x24?text=X';
+                              }}
+                            />
+                          </div>
+                        )}
+                        <datalist id="imageUrlList">
+                          {imageUrlHistory.map((url, index) => (
+                            <option key={index} value={url}>
+                              {url}
+                            </option>
+                          ))}
+                        </datalist>
+                      </div>
                       <button 
                         onClick={toggleAvailability}
                         className="px-4 py-2 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
