@@ -46,6 +46,32 @@ async function checkGymLeaderStatus(gymLeaderId: number): Promise<GymLeaderStatu
 
 // setGymLeaderStatus関数を追加
 async function setGymLeaderStatus(gymLeaderId: number, isAvailable: boolean): Promise<GymLeaderStatus> {
+  const i = gymLeaderId;
+
+  //@ts-ignore
+  const webhookUrl = Deno.env.get(`DISCORD_ANNOUNCE_URL_GYM${i}`);
+
+  // Discord通知の送信
+  if (webhookUrl) {
+    const message = isAvailable
+      ? `🟢 ジムリーダー${i}が対戦可能になりました！`
+      : `🔴 ジムリーダー${i}が対戦不可になりました。`;
+
+    try {
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: message,
+        }),
+      });
+    } catch (error) {
+      console.error('Discord通知の送信に失敗しました:', error);
+    }
+  }
+
   const { data, error } = await supabaseClient
     .from('gym_leaders')
     .update({ is_available: isAvailable })
